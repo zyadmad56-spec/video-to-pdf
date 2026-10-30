@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "kind": "visual_style",
+  "id": "blueframe-lecture",
+  "name": "Blueframe Lecture",
+  "version": "3.0.0",
+  "builtin": false,
+  "direction_support": [
+    "ltr",
+    "rtl"
+  ],
+  "languages": [
+    "en",
+    "ar",
+    "mixed"
+  ],
+  "description": "Blueframe layout adaptation using installed Arial instead of the incomplete reference font subset.",
+  "fonts": {
+    "latin": {
+      "family": "Arial",
+      "fallbacks": [
+        "Liberation Sans",
+        "sans-serif"
+      ]
+    },
+    "arabic": {
+      "family": "Arial",
+      "fallbacks": [
+        "Noto Sans Arabic",
+        "Segoe UI",
+        "sans-serif"
+      ]
+    },
+    "display": {
+      "family": "Arial",
+      "fallbacks": [
+        "Liberation Sans",
+        "sans-serif"
+      ]
+    },
+    "mono": {
+      "family": "Consolas",
+      "fallbacks": [
+        "Courier New",
+        "monospace"
+      ]
+    }
+  },
+  "palette": {
+    "background": "#FFFFFF",
+    "surface": "#FFFFFF",
+    "text": "#000000",
+    "muted": "#737373",
+    "accent": "#002060",
+    "accent_soft": "#E0E4EC",
+    "rule": "#B8B8B8",
+    "table_header": "#002060",
+    "table_header_text": "#FFFFFF",
+    "table_zebra": "#F0F2F5",
+    "example": "#8A5A16",
+    "example_soft": "#FBF0D9",
+    "warning": "#8A3B12"
+  },
+  "page": {
+    "width_mm": 338.667,
+    "height_mm": 190.5,
+    "margin_mm": {
+      "top": 29.7,
+      "right": 16.9,
+      "bottom": 15.4,
+      "left": 14.9
+    },
+    "line_height": 1.15,
+    "typography": {
+      "title_pt": 49.0,
+      "subtitle_pt": 23.0,
+      "h1_pt": 40.0,
+      "h2_pt": 36.0,
+      "body_pt": 18.0,
+      "small_pt": 11.0,
+      "caption_pt": 10.0,
+      "table_pt": 15.0,
+      "code_pt": 18.0
+    }
+  },
+  "slides": {
+    "width_in": 13.333,
+    "height_in": 7.5,
+    "margin_in": 0.587,
+    "title_bar_in": 1.835,
+    "typography": {
+      "title_pt": 54.0,
+      "section_pt": 56.7,
+      "body_pt": 28.0,
+      "bullet_pt": 26.6,
+      "caption_pt": 16.8,
+      "table_pt": 21.0,
+      "equation_pt": 32.2
+    }
+  },
+  "layout": {
+    "cover": "panel",
+    "section": "side-cards",
+    "image_alignment": "end",
+    "toc_columns": 2,
+    "rule_under_titles": true,
+    "families": [
+      "cover",
+      "section",
+      "explanation",
+      "bullets",
+      "table",
+      "equation",
+      "image-with-text"
+    ]
+  },
+  "rules": {
+    "images": {
+      "max_width_ratio": 0.72,
+      "max_height_ratio": 0.46,
+      "caption_pt": 8.5
+    },
+    "tables": {
+      "zebra": true,
+      "repeat_header": true,
+      "min_font_pt": 9.0
+    },
+    "equations": {
+      "direction": "ltr",
+      "align": "center"
+    }
+  },
+  "provenance": {
+    "source": "bundled-reference-adaptation",
+    "method": "measured-layout-with-font-substitution",
+    "reference_sha256": "1fdcad6b428d7daa0d618b0c49db6dc075ea3678efa93153b815cd289c75bcff",
+    "preview": null,
+    "notes": "Layout tokens adapted from the bundled privacy-edited reference. Arial is not bundled. PDF side cards and editable PPTX layouts differ.",
+    "reference_name": "system-analysis-design-reference.pdf"
+  },
+  "fingerprint": "8796f8429b439c63fa8e052af5fba463e5951092f34e94e56beceed2757e9884"
+}

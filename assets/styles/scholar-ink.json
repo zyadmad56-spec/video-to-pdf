@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "kind": "visual_style",
+  "id": "scholar-ink",
+  "name": "Scholar Ink",
+  "version": "1.0.0",
+  "builtin": true,
+  "direction_support": ["ltr", "rtl"],
+  "languages": ["en", "ar", "mixed"],
+  "description": "Book-like study notes: warm paper, deep teal rules, serif Latin headings, a calm Arabic reading face, and generous margins for sustained reading and printing.",
+  "fonts": {
+    "latin": {"family": "Georgia", "fallbacks": ["Times New Roman", "Cambria", "serif"]},
+    "arabic": {"family": "Segoe UI", "fallbacks": ["Tahoma", "Arial", "sans-serif"]},
+    "display": {"family": "Georgia", "fallbacks": ["Segoe UI", "serif"]},
+    "mono": {"family": "Consolas", "fallbacks": ["Courier New", "monospace"]}
+  },
+  "palette": {
+    "background": "#F8F4EA",
+    "surface": "#FFFDF8",
+    "text": "#20262B",
+    "muted": "#5B6670",
+    "accent": "#0E5B54",
+    "accent_soft": "#DCEAE5",
+    "rule": "#C7D3CE",
+    "table_header": "#0E5B54",
+    "table_header_text": "#FFFFFF",
+    "table_zebra": "#F0F5F2",
+    "example": "#8A5A16",
+    "example_soft": "#FBF0D9",
+    "warning": "#8A3B12"
+  },
+  "page": {
+    "width_mm": 210,
+    "height_mm": 297,
+    "margin_mm": {"top": 22, "right": 20, "bottom": 20, "left": 20},
+    "line_height": 1.62,
+    "typography": {
+      "title_pt": 30,
+      "subtitle_pt": 14,
+      "h1_pt": 20,
+      "h2_pt": 13,
+      "body_pt": 10.5,
+      "small_pt": 9,
+      "caption_pt": 8.5,
+      "table_pt": 9,
+      "code_pt": 9
+    }
+  },
+  "slides": {
+    "width_in": 13.333,
+    "height_in": 7.5,
+    "margin_in": 0.62,
+    "title_bar_in": 1.05,
+    "typography": {
+      "title_pt": 30,
+      "section_pt": 34,
+      "body_pt": 18,
+      "bullet_pt": 17,
+      "caption_pt": 11,
+      "table_pt": 13,
+      "equation_pt": 22
+    }
+  },
+  "layout": {
+    "cover": "band",
+    "section": "band",
+    "image_alignment": "end",
+    "toc_columns": 2,
+    "rule_under_titles": true,
+    "families": ["cover", "section", "explanation", "bullets", "table", "equation", "image-with-text"]
+  },
+  "rules": {
+    "images": {"max_width_ratio": 0.72, "max_height_ratio": 0.46, "caption_pt": 8.5},
+    "tables": {"zebra": true, "repeat_header": true, "min_font_pt": 8},
+    "equations": {"direction": "ltr", "align": "center"}
+  },
+  "provenance": {
+    "source": "built-in",
+    "method": "handcrafted",
+    "reference_sha256": null,
+    "preview": null,
+    "notes": "No reference file; tokens are authored for legible bilingual study material."
+  }
+}

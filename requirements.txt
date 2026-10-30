@@ -1,0 +1,7 @@
+# Core runtime dependencies for the portable lecture-to-materials skill.
+Pillow>=10.0
+numpy>=1.24
+pypdf>=4.0
+PyMuPDF>=1.24
+python-pptx>=0.6.23
+playwright>=1.40

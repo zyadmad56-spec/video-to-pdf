@@ -1,0 +1,4 @@
+interface:
+  display_name: "Video to PDF"
+  short_description: "Turn a lecture video into study PDF/PPTX"
+  default_prompt: "Use $video-to-pdf to turn this video into complete study notes as PDF, editable PowerPoint, or both, while preserving the original timestamped transcript."

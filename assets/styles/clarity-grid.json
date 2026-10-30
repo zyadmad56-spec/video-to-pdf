@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "kind": "visual_style",
+  "id": "clarity-grid",
+  "name": "Clarity Grid",
+  "version": "1.0.0",
+  "builtin": true,
+  "direction_support": ["ltr", "rtl"],
+  "languages": ["en", "ar", "mixed"],
+  "description": "Modern high-contrast study layout: white pages, indigo structural rules, amber highlights, compact sans typography, and a 16:9 slide grid that keeps headings and tables scannable.",
+  "fonts": {
+    "latin": {"family": "Segoe UI", "fallbacks": ["Calibri", "Arial", "sans-serif"]},
+    "arabic": {"family": "Segoe UI", "fallbacks": ["Tahoma", "Arial", "sans-serif"]},
+    "display": {"family": "Segoe UI Semibold", "fallbacks": ["Segoe UI", "Arial", "sans-serif"]},
+    "mono": {"family": "Consolas", "fallbacks": ["Courier New", "monospace"]}
+  },
+  "palette": {
+    "background": "#FFFFFF",
+    "surface": "#F5F7FB",
+    "text": "#141A24",
+    "muted": "#556070",
+    "accent": "#2B4ACB",
+    "accent_soft": "#E4E9FB",
+    "rule": "#C9D2E8",
+    "table_header": "#2B4ACB",
+    "table_header_text": "#FFFFFF",
+    "table_zebra": "#F2F5FD",
+    "example": "#9A5B00",
+    "example_soft": "#FFF3D6",
+    "warning": "#A23A12"
+  },
+  "page": {
+    "width_mm": 210,
+    "height_mm": 297,
+    "margin_mm": {"top": 18, "right": 17, "bottom": 18, "left": 17},
+    "line_height": 1.5,
+    "typography": {
+      "title_pt": 27,
+      "subtitle_pt": 13,
+      "h1_pt": 17,
+      "h2_pt": 12,
+      "body_pt": 10,
+      "small_pt": 8.5,
+      "caption_pt": 8,
+      "table_pt": 8.5,
+      "code_pt": 8.5
+    }
+  },
+  "slides": {
+    "width_in": 13.333,
+    "height_in": 7.5,
+    "margin_in": 0.55,
+    "title_bar_in": 0.95,
+    "typography": {
+      "title_pt": 28,
+      "section_pt": 32,
+      "body_pt": 17,
+      "bullet_pt": 16,
+      "caption_pt": 10.5,
+      "table_pt": 12,
+      "equation_pt": 20
+    }
+  },
+  "layout": {
+    "cover": "grid",
+    "section": "grid",
+    "image_alignment": "start",
+    "toc_columns": 2,
+    "rule_under_titles": true,
+    "families": ["cover", "section", "explanation", "bullets", "table", "equation", "image-with-text"]
+  },
+  "rules": {
+    "images": {"max_width_ratio": 0.68, "max_height_ratio": 0.45, "caption_pt": 8},
+    "tables": {"zebra": true, "repeat_header": true, "min_font_pt": 8},
+    "equations": {"direction": "ltr", "align": "center"}
+  },
+  "provenance": {
+    "source": "built-in",
+    "method": "handcrafted",
+    "reference_sha256": null,
+    "preview": null,
+    "notes": "No reference file; tokens are authored for a compact bilingual study layout and editable slides."
+  }
+}

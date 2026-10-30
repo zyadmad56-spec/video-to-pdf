@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "lecture-materials/teaching-profile.schema.json",
+  "title": "Lecture-to-Materials teaching profile (schema version 1)",
+  "description": "Preference fields only. Personal example prose and source transcripts must not be stored here.",
+  "type": "object",
+  "required": ["schema_version", "kind", "id", "name", "version", "preferences", "agreed"],
+  "additionalProperties": true,
+  "properties": {
+    "schema_version": {"const": 1},
+    "kind": {"const": "teaching_profile"},
+    "id": {"type": "string", "minLength": 1, "maxLength": 80},
+    "name": {"type": "string", "minLength": 1, "maxLength": 80},
+    "version": {"type": "string", "pattern": "^\\d+(\\.\\d+){0,3}$"},
+    "agreed": {"const": true},
+    "agreed_at": {"type": "string"},
+    "created_at": {"type": "string"},
+    "preferences": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "tone": {"type": "string", "maxLength": 1000},
+        "detail_level": {"type": "string", "maxLength": 1000},
+        "depth": {"type": "string", "maxLength": 1000},
+        "step_size": {"type": "string", "maxLength": 1000},
+        "steps": {"type": "string", "maxLength": 1000},
+        "example_type": {"type": "string", "maxLength": 1000},
+        "example_style": {"type": "string", "maxLength": 1000},
+        "analogy": {"type": "string", "maxLength": 1000},
+        "terminology": {"type": "string", "maxLength": 1000},
+        "terminology_treatment": {"type": "string", "maxLength": 1000},
+        "technical_level": {"type": "string", "maxLength": 1000},
+        "structure": {"type": "string", "maxLength": 1000},
+        "format": {"type": "string", "maxLength": 1000},
+        "question_style": {"type": "string", "maxLength": 1000},
+        "language_style": {"type": "string", "maxLength": 1000},
+        "audience": {"type": "string", "maxLength": 1000},
+        "pacing": {"type": "string", "maxLength": 1000},
+        "notes": {"type": "string", "maxLength": 1000}
+      }
+    }
+  }
+}

@@ -1,0 +1,5 @@
+# One anonymous YouTube video input support.
+# The official "default" extra supplies yt-dlp-ejs and the related extraction
+# dependencies. Install only from the Python package index; do not fetch remote
+# solver components at runtime.
+yt-dlp[default]>=2026.10.21

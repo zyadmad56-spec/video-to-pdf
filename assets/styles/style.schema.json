@@ -1,0 +1,207 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "lecture-materials/visual-style.schema.json",
+  "title": "Lecture-to-Materials visual style (schema version 1)",
+  "description": "Data-only visual tokens. Implementations must never execute style content. Teaching preferences live in a separate teaching_profile document.",
+  "type": "object",
+  "required": ["schema_version", "kind", "id", "name", "version", "fonts", "palette", "page", "slides", "rules"],
+  "additionalProperties": true,
+  "properties": {
+    "schema_version": {"const": 1},
+    "kind": {"const": "visual_style"},
+    "id": {"type": "string", "minLength": 1, "maxLength": 80},
+    "name": {"type": "string", "minLength": 1, "maxLength": 80},
+    "version": {"type": "string", "pattern": "^\\d+(\\.\\d+){0,3}$"},
+    "builtin": {"type": "boolean"},
+    "direction_support": {"type": "array", "items": {"enum": ["ltr", "rtl"]}, "minItems": 1},
+    "languages": {"type": "array", "items": {"type": "string"}},
+    "description": {"type": "string"},
+    "fonts": {
+      "type": "object",
+      "required": ["latin", "arabic", "display", "mono"],
+      "additionalProperties": {
+        "type": "object",
+        "required": ["family"],
+        "properties": {
+          "family": {"type": "string", "minLength": 1},
+          "fallbacks": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "font_assets": {
+      "description": "Optional local TrueType assets for PDF. Runtime validation additionally checks relative-path containment, links, SHA-256, size and font decoding.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["family", "path", "sha256"],
+        "additionalProperties": false,
+        "properties": {
+          "family": {"type": "string", "minLength": 1, "maxLength": 80},
+          "path": {"type": "string", "minLength": 1, "pattern": "[.][tT][tT][fF]$"},
+          "sha256": {"type": "string", "pattern": "^[a-fA-F0-9]{64}$"}
+        }
+      }
+    },
+    "palette": {
+      "type": "object",
+      "required": ["background", "surface", "text", "muted", "accent", "accent_soft", "rule",
+                   "table_header", "table_header_text", "table_zebra", "example", "example_soft", "warning"],
+      "additionalProperties": {"type": "string", "pattern": "^#[0-9A-Fa-f]{6}$"}
+    },
+    "page": {
+      "type": "object",
+      "required": ["width_mm", "height_mm", "margin_mm", "line_height", "typography"],
+      "properties": {
+        "width_mm": {"type": "number", "minimum": 50},
+        "height_mm": {"type": "number", "minimum": 50},
+        "margin_mm": {
+          "type": "object",
+          "required": ["top", "right", "bottom", "left"],
+          "additionalProperties": {"type": "number", "minimum": 0}
+        },
+        "line_height": {"type": "number", "minimum": 0.9},
+        "typography": {"type": "object", "additionalProperties": {"type": "number", "minimum": 4}}
+      }
+    },
+    "slides": {
+      "type": "object",
+      "required": ["width_in", "height_in", "margin_in", "title_bar_in", "typography"],
+      "properties": {
+        "width_in": {"type": "number", "minimum": 4},
+        "height_in": {"type": "number", "minimum": 3},
+        "margin_in": {"type": "number", "minimum": 0},
+        "title_bar_in": {"type": "number", "minimum": 0.2},
+        "typography": {"type": "object", "additionalProperties": {"type": "number", "minimum": 6}}
+      }
+    },
+    "layout": {
+      "type": "object",
+      "properties": {
+        "cover": {"type": "string"},
+        "section": {"type": "string"},
+        "image_alignment": {"enum": ["start", "end", "center"]},
+        "toc_columns": {"type": "integer", "minimum": 1, "maximum": 3},
+        "rule_under_titles": {"type": "boolean"},
+        "families": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "rules": {
+      "type": "object",
+      "required": ["images", "tables", "equations"],
+      "properties": {
+        "images": {
+          "type": "object",
+          "required": ["max_width_ratio", "max_height_ratio"],
+          "properties": {
+            "max_width_ratio": {"type": "number", "minimum": 0.05, "maximum": 1},
+            "max_height_ratio": {"type": "number", "minimum": 0.05, "maximum": 1},
+            "caption_pt": {"type": "number", "minimum": 4}
+          }
+        },
+        "tables": {
+          "type": "object",
+          "properties": {
+            "zebra": {"type": "boolean"},
+            "repeat_header": {"type": "boolean"},
+            "min_font_pt": {"type": "number", "minimum": 5}
+          }
+        },
+        "equations": {
+          "type": "object",
+          "properties": {
+            "direction": {"const": "ltr"},
+            "align": {"enum": ["center", "start"]}
+          }
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "properties": {
+        "source": {"type": "string"},
+        "method": {"type": "string"},
+        "reference_sha256": {"type": ["string", "null"]},
+        "reference_path": {"type": "string"},
+        "reference_name": {"type": "string"},
+        "reference_format": {"type": "string"},
+        "conversion": {"type": ["object", "null"]},
+        "preview": {"type": ["string", "null"]},
+        "notes": {"type": "string"}
+      }
+    },
+    "design": {
+      "type": ["object", "null"],
+      "description": "Reference design representation. Tokens only for PDF/raster; for PPTX it also names a sanitized frozen native template. Reference screenshots are not stored here.",
+      "additionalProperties": true,
+      "properties": {
+        "schema_version": {"const": 1},
+        "kind": {"const": "reference_design"},
+        "source_format": {"enum": ["pdf", "pptx", "raster"]},
+        "method": {"type": "string"},
+        "reference": {
+          "type": "object",
+          "properties": {
+            "name": {"type": "string"},
+            "path": {"type": "string"},
+            "original_path": {"type": "string"},
+            "original_name": {"type": "string"},
+            "sha256": {"type": "string"},
+            "original_sha256": {"type": "string"},
+            "original_format": {"type": "string"},
+            "conversion": {"type": ["object", "null"]}
+          }
+        },
+        "identity": {
+          "type": "object",
+          "properties": {
+            "mode": {"enum": ["frozen", "self-contained"]},
+            "source_path": {"type": "string"},
+            "source_sha256": {"type": "string"},
+            "frozen_path": {"type": "string"},
+            "frozen_sha256": {"type": "string"}
+          }
+        },
+        "template": {
+          "type": ["object", "null"],
+          "description": "Sanitized native PPTX template (no original slides or picture objects).",
+          "properties": {
+            "path": {"type": "string"},
+            "sha256": {"type": "string"},
+            "frozen": {"type": "boolean"},
+            "sanitized": {"type": "boolean"},
+            "source_path": {"type": "string"},
+            "source_sha256": {"type": "string"},
+            "removed_slides": {"type": "integer"},
+            "removed_pictures": {"type": "array", "items": {"type": "string"}},
+            "removed_text_shapes": {"type": "array", "items": {"type": "string"}},
+            "removed_content_objects": {"type": "array", "items": {"type": "string"}},
+            "cleared_placeholder_texts": {"type": "array", "items": {"type": "string"}},
+            "picture_fills_replaced": {"type": "integer"},
+            "background_images_replaced": {"type": "integer"}
+          }
+        },
+        "previews": {
+          "type": "object",
+          "properties": {
+            "reference_pages": {"type": "array", "items": {"type": "string"}},
+            "reference_slides": {"type": "array", "items": {"type": "string"}},
+            "note": {"type": "string"}
+          }
+        },
+        "support": {
+          "type": "object",
+          "properties": {
+            "supported": {"type": "array", "items": {"type": "object"}},
+            "preserved": {"type": "array", "items": {"type": "object"}},
+            "approximated": {"type": "array", "items": {"type": "object"}},
+            "unsupported": {"type": "array", "items": {"type": "object"}},
+            "ambiguous": {"type": "array", "items": {"type": "object"}},
+            "excluded": {"type": "array", "items": {"type": "object"}}
+          }
+        },
+        "report_path": {"type": ["string", "null"]}
+      }
+    },
+    "fingerprint": {"type": "string"}
+  }
+}
