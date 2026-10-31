@@ -18,10 +18,10 @@ jobs:
           python-version: '3.11'
           cache: pip
       - name: Install system tools
-        run: sudo apt-get update && sudo apt-get install -y ffmpeg fonts-noto-core fonts-liberation
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg fonts-noto-core fonts-liberation libreoffice-impress
       - name: Install Python and browser dependencies
         run: |
-          python -m pip install -r requirements.txt -r requirements-youtube.txt
+          python -m pip install -r requirements.txt -r requirements-youtube.txt -r requirements-asr.txt
           python -m playwright install --with-deps chromium
       - name: Run regression tests
         run: python -X utf8 -m unittest discover -s tests -q

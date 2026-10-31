@@ -176,13 +176,19 @@ The skill's public name is `video-to-pdf`. The Python module remains `lecture_ma
 
 ### Tests
 
-After installing the runtime libraries and FFmpeg, run from the repository root:
+After installing the runtime libraries and FFmpeg, install the speech library used by the SDK-boundary tests:
+
+```bash
+python -m pip install -r requirements-asr.txt
+```
+
+This installs the library without downloading a model. Run the suite from the repository root:
 
 ```bash
 python -X utf8 -m unittest discover -s tests -q
 ```
 
-Renderer tests need an available Chromium route. Native Office tests require Windows and the relevant bindings. The local ASR smoke test skips when its model is absent and never downloads one. The CI workflow runs on Ubuntu with Chromium and FFmpeg; passing it does not establish native Office rendering or transcript accuracy on every lecture.
+Renderer tests need an available Chromium route. PowerPoint reference comparisons need a slide renderer: LibreOffice Impress on Linux, or Microsoft PowerPoint with the relevant bindings on Windows. Windows-specific Office tests require Windows. The local ASR smoke test skips when its model is absent and never downloads one. The CI workflow runs on Ubuntu with Chromium, FFmpeg, LibreOffice Impress, and the speech library; passing it does not establish native Microsoft Office rendering or transcript accuracy on every lecture.
 
 ### Current limits
 
