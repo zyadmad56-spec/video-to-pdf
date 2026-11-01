@@ -19,6 +19,7 @@ import time
 from datetime import datetime, timezone
 
 from . import media as media_module
+from .job_locks import speech_lock
 from .jobs import (
     SourceChangedError,
     file_digest,
@@ -430,6 +431,12 @@ def _persist_run_state(root, state_path, document):
 def reset_transcription(root):
     """Explicitly discard ASR checkpoints and transcript for a settings change."""
 
+    with speech_lock(root):
+        return _reset_transcription_unlocked(root)
+
+
+def _reset_transcription_unlocked(root):
+
     root = Path(root).resolve()
     job = load_job(root)
     stale = [
@@ -501,6 +508,12 @@ def _merge_segments(chunks):
 def transcribe_local(root, settings=None, **overrides):
     """Run real faster-whisper ASR with completed-chunk resume."""
 
+    with speech_lock(root):
+        return _transcribe_local_unlocked(root, settings, **overrides)
+
+
+def _transcribe_local_unlocked(root, settings=None, **overrides):
+
     root = Path(root).resolve()
     supplied = dict(settings or {})
     supplied.update({key: value for key, value in overrides.items() if value is not None})
@@ -534,7 +547,7 @@ def transcribe_local(root, settings=None, **overrides):
         )
     force = bool(supplied.get("force", False))
     if force:
-        reset_transcription(root)
+        _reset_transcription_unlocked(root)
         previous = None
         plan = _chunk_plan(
             float(media["start"]),

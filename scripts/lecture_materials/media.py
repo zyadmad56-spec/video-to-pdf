@@ -1142,7 +1142,7 @@ def _inserted_count(root):
     count = 0
     for section in content.get("sections", []) if isinstance(content, dict) else []:
         for block in section.get("blocks", []) if isinstance(section, dict) else []:
-            if isinstance(block, dict) and block.get("type") == "image":
+            if isinstance(block, dict) and block.get("type") in {"image", "instruction"}:
                 count += 1
     return count
 

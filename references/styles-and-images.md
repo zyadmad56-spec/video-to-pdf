@@ -213,7 +213,7 @@ Rules enforced by `authoring.image_asset` and `validate_content`:
 10. Keep source/caption close to the image. Never crop away scientific labels to fit a style; a crop record must set `preserves_labels: true`.
 11. An optional `source_name` (1–48 printable characters) is the compact citation label shown where the source link would print a full URL; the link still goes to the real `source_url`/`source_page`, and no attribution is removed.
 
-Web images need a source URL/page and a licensing status (unknown is allowed). User images keep their original path. An optional `source_name` may be the source's brand name (English brand names are fine in Arabic citations; student explanations stay Arabic). The `subject`, reasons, and decisions are ordinary text; do not print invented confidence percentages. "Likely unrelated" is a judgment, not a measured probability.
+Web images need a source URL/page and a licensing status (unknown is allowed). User images keep their original path. An optional `source_name` may be the source's brand name; the explanation keeps the user's chosen output language. The `subject`, reasons, and decisions are ordinary text; do not print invented confidence percentages. "Likely unrelated" is a judgment, not a measured probability.
 
 The host performs search and semantic inspection with its own tools. The renderer consumes reviewed assets; it does not make unverified search results trustworthy and does not call a paid image API. `authoring.excluded_assets(root)` returns excluded/pending records with their recorded reasons so the host can explain a mismatch to the user.
 

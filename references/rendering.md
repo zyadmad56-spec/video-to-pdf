@@ -71,7 +71,7 @@ Final outputs live in `outputs/`, not `work/`, and are not cleanup targets. Work
 - Explicit `panel`/`side-cards` families and optional verified local TrueType assets are described in [styles-and-images.md](styles-and-images.md#panel-cover-side-cards-and-local-fonts-in-pdf). Their bottom rule is printed by the existing footer template, outside flowing chapter content, so decoration cannot strand an empty continuation page.
 - Contents-page numbers come from the generated PDF's section destinations, not text matching. Wrapped, repeated and mixed-language headings retain distinct targets; a missing section destination fails rendering explicitly.
 - Python builds HTML/CSS from content; a local Chromium renders the complete document.
-- Cover, contents, topic divisions, page-number footer, repeated table headers, wrapped rows, selectable text, and a source-notes appendix are produced in one file.
+- Cover, contents, topic divisions, page-number footer, repeated table headers, wrapped rows, selectable text, and a source-notes appendix are produced in one file. In `software_tutorial` mode, notes export material uncertainties only; the complete omission ledger stays in `content.json`.
 - A PDF reference design contributes measured page size, margins, body/heading sizes and colours, cover title position/band, header/footer positions and styles, simple recurring vector bands/rules/page borders, and table treatment. Source page dimensions are preserved through CSS-pixel page sizing; Chromium can leave sub-point quantization (<0.1 pt), but no page is added or cropped. Header/footer template text is the new document's title/page number; old labels are not copied. Complex/flattened elements are reported as approximations rather than silently claimed.
 - Images are embedded as data URIs, so deleting working images later does not break the PDF.
 - Equation blocks with a validated structured `math` tree render inside the same equation box as native display-style MathML (`<math dir="ltr">` with `math-style: normal`, math font such as Cambria Math): numerator and denominator keep full size (not script-shrunk), subscripts are genuinely lowered and smaller, superscripts raised, square roots supported. The output stays selectable vector text, never a raster picture. Blocks without `math` keep the monospace plain-text fallback unchanged.
@@ -108,6 +108,24 @@ Both preview and final reports include `reference_design` (frozen/source identit
 A saved PPTX style's previews are regenerated from the intact original when its hash matches. If the original changed or is missing, the frozen template still renders, but the comparison is unavailable and the mismatch is reported instead of silently rebinding.
 
 ## Preview acceptance and final gate
+
+### Paired software tutorial output (v0.1)
+
+Use `document_mode: "software_tutorial"` and `instruction` blocks as defined in
+`content-contract.md`. Each block becomes one page/slide containing its title,
+image, numbered actions, and result. PDF print preflight checks the actual
+browser layout for overflow; PPTX checks the available text/image space before
+creating the unit. A dense unit raises a split-at-substep error. Native PPTX
+callout shapes remain editable. This mode omits decorative section-divider
+slides and internal omission tables while preserving material uncertainties.
+Existing content without the mode keeps the legacy rendering behavior.
+
+The host still verifies the pixels, coordinates, and teaching against the video;
+geometric validation cannot prove that a marked control is the correct control.
+The first two instruction units form the preview; keep them representative of
+the typical and densest layouts needed by the lecture.
+
+### Existing acceptance binding
 
 `render_final` begins with `authoring.prepare_render`, which:
 

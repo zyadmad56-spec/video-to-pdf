@@ -20,6 +20,12 @@ The scripts do not understand a diagram, prove that an evidence ID supports a
 sentence, or know that a symbol is scientifically correct. Never present
 structural IDs, a contact sheet, or a successful script exit as semantic review.
 
+Keep repository instructions and example prompts in English. Ask questions and
+explain progress in the user's conversation language unless they request another
+language. This is separate from the chosen document and image-label languages.
+When relaying a backend question, translate its wording and option labels as
+needed while preserving question IDs, option values, and the user's actual answer.
+
 ## What you need before ingest
 
 Read the user's request and keep choices already supplied. Ask only for what is
@@ -64,8 +70,8 @@ missing, in ordinary language, **before** starting a long ingest:
 7. **Original materials:** PDF/PPTX/slides and attachments with roles
    (`content`, `design`, `images`, or multiple roles).
 8. **Source times:** ask whether to show each section's video interval, for
-   example **17:18–18:18**, or hide it. In Arabic: "تحب نعرض وقت الجزء من
-   الفيديو مع كل قسم، ولا نخفيه؟" Record the explicit answer as boolean
+   example **17:18–18:18**, or hide it: "Would you like each section's video
+   interval shown, or hidden?" Record the explicit answer as boolean
    `show_timestamps`; keep an existing answer and do not ask again. `init`,
    `status` and `output-intake` expose unanswered questions in `output_intake`.
    Ask before authoring the preview; a legacy job with no answer still renders
@@ -364,7 +370,7 @@ Rules that are non-negotiable even under deadline pressure:
   (`search_interval_open: true`); when `ready_for_search` is true instead, the
   next explicit `image-search-start` is required to open it first.
 - After a full unsuccessful budget (600 s default) the request stops and asks
-  the plan's Arabic question. Present it to the user, get an answer, and record
+  the plan's question. Relay it in the user's conversation language, get an answer, and record
   it with `--user-confirmed`; a timeout is not an answer and skipping the ask is
   a defect, not a shortcut.
 - Every used image needs candidate relevance, the actual-label

@@ -16,23 +16,26 @@ may already settle these choices. Ask the unanswered questions together, before
 long ingest or document assembly, in the user's language. Recommendations are
 options, not submitted answers.
 
-1. **Detail level:** "تحب نحافظ على كل فكرة وخطوة ومثال تعليمي مهم بصياغة مركزة،
-   ونشيل التكرار والكلام الجانبي، ولا تحب نقل قريب من كلام المحاضر حتى لو أطول؟"
+1. **Detail level:** "Would you like every important teaching point, step, and
+   example written concisely, with repetition and unrelated talk removed, or
+   a near-verbatim explanation even if it takes more pages?"
    Recommend **all important teaching, written concisely**. The alternative is
    **near-verbatim teaching**. Concise means removing repetition, not dropping
    distinct explanations, useful instructional questions, examples, or results.
-2. **Instructional layout:** "تحب صورة واضحة معلّم عليها والخطوات المرتبطة بيها
-   في نفس الصفحة، ولا عندك توزيع أو مرجع تاني تحب نمشي عليه؟"
+2. **Instructional layout:** "Would you like a clear annotated screenshot and
+   its related steps on the same page, or do you have another layout or
+   reference you would like me to follow?"
    Recommend **annotated screenshot and its steps together**. Keep a supplied
    layout/reference instead of asking again. Treat a request to match a design
    as a composition requirement, not just a palette/font choice.
 3. **Screenshot source:** ask this only when pictures are requested and the
    source choice remains unanswered:
 
-> تحب ناخد صور الشرح من الفيديو نفسه، ولا أفتح البرنامج وأصوّر نفس الخطوات؟
-> أنصح بصور الفيديو لأنها بتطابق شرح المحاضر والبيانات اللي بيستخدمها.
+> Should I take screenshots from the recording, or open the application and
+> reproduce the demonstrated steps? I recommend recording screenshots because
+> they match the lecturer's interface and data.
 
-Offer two choices: **من الفيديو (أنصح به)** and **من داخل البرنامج**. A
+Offer two choices: **From the recording (recommended)** and **From the application**. A
 text-only request skips the layout's screenshot choice and this source question;
 keep the agreed detail level and use clear text instructions. Wait for missing
 answers while continuing independent, inexpensive inspection. Preserve choices
@@ -99,13 +102,13 @@ a typical unit and a dense dialog or multi-step unit in each requested format.
 Inspect and have the user judge both the teaching and image/step pairing at
 reading size. A cover or a colour match alone does not demonstrate the layout.
 
-Check the authoring route's actual pairing and notes-export support before the
-pilot. A style entry named `image-with-text` is not proof of a working compositor.
-The current sequential renderers can split related blocks and automatically add
-source notes. If the selected route cannot meet the agreed layout or keep lengthy
-internal audit tables out of the study file, disclose the limitation before full
-assembly and establish a supported route that preserves evidence and approval
-gates. Markdown instructions alone do not implement renderer capabilities.
+For the paired layout, set `document_mode: "software_tutorial"` in `content.json`
+and use the [instruction block contract](content-contract.md#instruction-screenshot-actions-and-result-v01).
+It renders each screenshot and its steps as one PDF page / PPTX slide, and keeps
+the detailed omission ledger in working records. A style entry named
+`image-with-text` alone does not select this behavior. Split an oversized unit
+at a meaningful substep when the renderer reports it cannot fit; preserve every
+teaching point and the corresponding image context.
 
 Keep detailed evidence IDs, omission ledgers, noise/repetition lists, and resource
 logs in working records. The study file should contain the teaching and only

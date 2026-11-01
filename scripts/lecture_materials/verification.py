@@ -166,7 +166,7 @@ def inspect_pdf(root, path, content, text_only, render=True):
     page_count = document.page_count
     expected_images = sum(
         1 for _, block in authoring.iter_blocks(content or {"sections": []})
-        if block.get("type") == "image"
+        if block.get("type") in {"image", "instruction"}
     )
     preview_paths = []
     render_note = None

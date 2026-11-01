@@ -20,6 +20,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from . import authoring
+from . import instructions
 from . import output_preferences
 from . import design as design_module
 from .jobs import file_digest, read_json, register_generated, write_json
@@ -1241,6 +1242,119 @@ class DeckBuilder:
         self.cursor += 0.12
         self._notes(block.get("evidence"), "image")
 
+    def _instruction_text_height(self, text, size, width):
+        # Technical identifiers can wrap within one long word in PowerPoint.
+        capacity = max(10, int(width * 72 / (size * (.58 if self.direction == "rtl" else .56))))
+        extra = sum((len(word) - 1) // capacity for word in str(text).split())
+        return estimate_text_height(text, size, width, self.direction == "rtl") + extra * size * 1.2 / 72 + .1
+
+    def _instruction_regions(self, block, aspect, top, pieces, size):
+        available = self.body_bottom - top
+        if instructions.layout(block, aspect) == "stacked":
+            needed = sum(self._instruction_text_height(p, size, self.body_width) for p in pieces)
+            image_height = available - needed - .15
+            image_area = (self.body_left, top, self.body_width, image_height)
+            copy_area = (self.body_left, top + image_height + .15, self.body_width, needed)
+        else:
+            image_area = (self.body_left, top, self.body_width * .55, available)
+            copy_area = (self.body_left + self.body_width * .58, top, self.body_width * .42, available)
+            if self.direction == "rtl":
+                copy_area = (self.body_left, top, self.body_width * .42, available)
+                image_area = (self.body_left + self.body_width * .45, top, self.body_width * .55, available)
+            needed = sum(self._instruction_text_height(p, size, copy_area[2]) for p in pieces)
+        if needed > copy_area[3] + .001 or image_area[3] < .7:
+            raise ValueError("Split the dense instruction at a meaningful substep; its image and steps must fit one slide")
+        return image_area, copy_area
+
+    def _instruction_callouts(self, slide, block, geometry):
+        from pptx.dml.color import RGBColor
+        from pptx.enum.shapes import MSO_SHAPE
+        from pptx.util import Inches, Pt
+
+        left, top, width, height = geometry
+        for mark in block.get("callouts", []):
+            x, y, w, h = mark["box"]
+            rect = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(left + x * width),
+                Inches(top + y * height), Inches(w * width), Inches(h * height))
+            rect.name = f"Instruction callout {mark['step']}"
+            rect.fill.background()
+            rect.line.color.rgb = RGBColor.from_string("CD5710")
+            rect.line.width = Pt(1.5)
+            badge_size = .23
+            badge_x = min(left + width - badge_size, left + (x + w) * width - badge_size / 2)
+            badge_y = max(top, top + y * height - badge_size / 2)
+            badge = slide.shapes.add_shape(MSO_SHAPE.OVAL, Inches(badge_x), Inches(badge_y),
+                                           Inches(badge_size), Inches(badge_size))
+            badge.name = f"Instruction callout number {mark['step']}"
+            badge.fill.solid()
+            badge.fill.fore_color.rgb = RGBColor.from_string("CD5710")
+            badge.line.fill.background()
+            _add_text(slide, badge_x, badge_y, badge_size, badge_size, str(mark["step"]),
+                      self.style, "ltr", self.labels, size_pt=10, color="#FFFFFF", bold=True, align_center=True)
+
+    def _instruction_picture(self, slide, asset, block, area):
+        from pptx.util import Inches
+
+        path = asset.get("resolved_path") or asset["path"]
+        width, height, _ = self._image_size(path)
+        source = instructions.recording_label(asset) or _asset_source_line(asset)
+        caption = block["caption"] + (f"\n{source}" if source else "")
+        caption_height = self._instruction_text_height(caption, 10, area[2])
+        picture_area = (area[0], area[1], area[2], area[3] - caption_height - .1)
+        if picture_area[3] < .5:
+            raise ValueError("Split the instruction at a meaningful substep; the caption leaves no readable image")
+        geometry = instructions.fit_image(width, height, picture_area)
+        left, top, draw_width, draw_height = geometry
+        shape = slide.shapes.add_picture(str(Path(path).resolve()), Inches(left), Inches(top),
+                                        width=Inches(draw_width), height=Inches(draw_height))
+        shape.name = f"Reviewed instruction image {asset['id']}"
+        self._instruction_callouts(slide, block, geometry)
+        credit_box = _add_text(slide, area[0], area[1] + picture_area[3] + .05, area[2], caption_height,
+                               caption, self.style, self.direction, self.labels, size_pt=10,
+                               color=self.style["palette"]["muted"])
+        source_url = asset.get("source_url") or asset.get("source_page")
+        if isinstance(source_url, str) and re.fullmatch(r"https?://[^\s]+", source_url):
+            for paragraph in credit_box.text_frame.paragraphs[1:]:
+                for run in paragraph.runs:
+                    run.hyperlink.address = source_url
+
+    def add_instruction(self, section, block):
+        instructions.validate(block)
+        asset = authoring.image_asset(self.root, block["asset_id"], section["id"])
+        _, _, aspect = self._image_size(asset.get("resolved_path") or asset["path"])
+        self.section_starts.setdefault(section["id"], len(self.presentation.slides))
+        slide = self._new_slide("content_layout")
+        timing = output_preferences.section_time_label(self.root, section)
+        context = section["title"] + (f" · {timing}" if timing else "")
+        if block.get("origin") == "example":
+            context = self.labels["additional_example"] + " - " + context
+        _add_text(slide, self.body_left, self.margin * .55, self.body_width, .25,
+                  context, self.style, self.direction, self.labels, size_pt=11,
+                  color=self.style["palette"]["muted"])
+        title_size = min(30, self.style["slides"]["typography"]["title_pt"])
+        title_height = self._instruction_text_height(block["title"], title_size, self.body_width)
+        if title_height > 1.1:
+            raise ValueError("Split the instruction title at a meaningful substep; it is too long for one slide")
+        _add_text(slide, self.body_left, self.margin + .05, self.body_width, title_height,
+                  block["title"], self.style, self.direction, self.labels, size_pt=title_size,
+                  bold=True, color=self.style["palette"]["accent"])
+        top = self.margin + title_height + .3
+        if self.using_reference_template:
+            top = max(top, self.body_top)
+        size = (self.style["page"]["typography"]["body_pt"] if self.pdf_tokens else
+                min(20, self.style["slides"]["typography"]["body_pt"]))
+        pieces = [block["text"], *[f"{i}. {step}" for i, step in enumerate(block["steps"], 1)], block["result"]]
+        image_area, copy_area = self._instruction_regions(block, aspect, top, pieces, size)
+        y = copy_area[1]
+        for index, piece in enumerate(pieces):
+            text_height = self._instruction_text_height(piece, size, copy_area[2])
+            _add_text(slide, copy_area[0], y, copy_area[2], text_height - .02, piece,
+                      self.style, self.direction, self.labels, size_pt=size, bold=index == len(pieces) - 1)
+            y += text_height
+        self._instruction_picture(slide, asset, block, image_area)
+        self.slide, self.cursor = slide, self.body_bottom
+        self._notes(block.get("evidence"), "instruction")
+
     def add_table(self, block):
         header = block.get("header") or block.get("columns") or []
         rows = [[str(cell) for cell in row] for row in block.get("rows", [])]
@@ -1351,7 +1465,7 @@ class DeckBuilder:
 
     def add_appendix(self):
         uncertainties = self.content.get("uncertainties") or []
-        omissions = self.content.get("omissions") or []
+        omissions = [] if instructions.tutorial_mode(self.content) else self.content.get("omissions") or []
         if not uncertainties and not omissions:
             return
         size = self.style["slides"]["typography"]["body_pt"] - 1
@@ -1487,12 +1601,15 @@ class DeckBuilder:
         for index, section in enumerate(sections, start=1):
             self.section = section
             self.section_index = index
-            if not preview:
+            if not preview and not instructions.tutorial_mode(self.content):
                 self.add_section_divider(section, index)
-            self.new_content_slide(section, False)
+            if section["blocks"][0].get("type") != "instruction":
+                self.new_content_slide(section, False)
             for block in _preview_blocks(section) if preview else section["blocks"]:
                 kind = block.get("type")
-                if kind == "paragraph":
+                if kind == "instruction":
+                    self.add_instruction(section, block)
+                elif kind == "paragraph":
                     self.add_paragraph(block)
                 elif kind == "bullets":
                     self.add_bullets(block)
@@ -1572,6 +1689,10 @@ def _asset_source_line(asset):
 
 
 def _preview_sections(content):
+    if instructions.tutorial_mode(content):
+        selected = instructions.preview_sections(content)
+        if selected:
+            return selected
     sections = content["sections"]
     used = set()
     chosen = []
@@ -1596,7 +1717,7 @@ def _preview_blocks(section):
     used = set()
     for block in section.get("blocks", []):
         kind = block.get("type")
-        if kind not in used or kind == "paragraph":
+        if kind not in used or kind in {"paragraph", "instruction"}:
             blocks.append(block)
             used.add(kind)
         if len(blocks) >= 4:
@@ -1887,7 +2008,7 @@ def inspect_pptx(root, path, content, style, text_only, content_file=None, rende
     expected_tables = sum(1 for _, block in authoring.iter_blocks(content) if block.get("type") == "table")
     expected_rows = sum(len(block.get("rows", [])) for _, block in authoring.iter_blocks(content)
                         if block.get("type") == "table")
-    expected_pictures = sum(1 for _, block in authoring.iter_blocks(content) if block.get("type") == "image")
+    expected_pictures = sum(1 for _, block in authoring.iter_blocks(content) if block.get("type") in {"image", "instruction"})
 
     problems = []
     warnings = []
