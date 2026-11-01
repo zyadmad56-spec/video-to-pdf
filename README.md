@@ -199,12 +199,15 @@ Renderer tests need an available Chromium route. PowerPoint reference comparison
 - Structured equation layout uses MathML in PDF. The PPTX path rejects those structured math blocks explicitly; it needs an appropriate supported representation before export.
 - Design extraction supports selected layout and font properties. Missing fonts and complex native slide features can change the output.
 
-### Local version checkpoints
+### Version checkpoints
 
 `the-firest-vergen` marks the original version before the `v0.1` instructional
 video guidance. The feature branch is retained and merged into `main` with a
-merge commit, so its changes remain identifiable. This increment updates agent
-instructions and intake; it does not add a new PDF/PPTX compositor.
+merge commits, so its changes remain identifiable. This increment adds software
+tutorial intake, paired PDF/PPTX instruction units, editable callout shapes,
+study-file notes separated from internal omission ledgers, and exclusive ASR
+writer/reset locking. The agent asks questions in the user's conversation
+language; the repository instructions and examples are English.
 
 To inspect the original version while keeping both branches:
 
@@ -213,8 +216,10 @@ git switch --detach the-firest-vergen
 git switch main
 ```
 
-To remove the feature from `main` while preserving history, identify its merge
-with `git log --oneline --merges` and run `git revert -m 1 <merge-commit>` from a
-clean `main` checkout. Keep the baseline tag and `v0.1` branch for later comparison.
+To remove the feature from `main` while preserving history, identify its merges
+with `git log --oneline --merges` and revert the v0.1 merges **newest first** using
+`git revert -m 1 <merge-commit>` from a clean `main` checkout. Multiple integration
+merges may exist. The baseline tag always identifies the exact original version;
+keep that tag and the `v0.1` branch for later comparison.
 
 The code and original instructions use the [MIT license](LICENSE). The bundled course PDF retains its original authorship and is outside that license; see [NOTICE](NOTICE).

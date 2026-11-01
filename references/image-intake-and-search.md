@@ -33,14 +33,14 @@ Intake rules (applied by `init`/`prepare` and `image-intake`):
    `preferences_incomplete` before any long ingest.
 5. Legacy jobs without `image_language` keep their historical contract.
 
-The Arabic phrasing the backend records for the unanswered mixed-document
-question is:
+The backend records a localized question for an unanswered mixed-document
+image-language choice. Its meaning in English is:
 
-> المستند يجمع بين العربية والإنجليزية. ما لغة العناوين داخل الصور: العربية،
-> الإنجليزية، أم العربية والإنجليزية معًا؟ (options: العربية / الإنجليزية /
-> العربية والإنجليزية معًا)
+> The document combines Arabic and English. Should labels inside its images
+> be Arabic, English, or bilingual? (Options: Arabic / English / both.)
 
-Ask it in ordinary language when it appears in `questions`; then record the
+Ask it in the user's conversation language when it appears in `questions`;
+translate display text while preserving question IDs and option values. Record the
 answer with `image-intake --root "<job>" --image-language <value> --apply`.
 
 ## The per-image language review
@@ -125,9 +125,10 @@ Operational loop for one section's image need:
    A network call that was already in flight when the boundary passed may
    finish and be recorded (`in_flight_after_budget`), but **do not launch
    another search after the budget without a recorded decision**.
-5. **Ask the user, really.** Ask the ledger's question in Arabic:
-   "لم يُعثر على صورة مناسبة… هل تريد متابعة البحث، أم استخدام صور بالعربية، أم
-   استخدام صور بالإنجليزية، أم عدم استخدام صور؟" Then record the real answer:
+5. **Ask the user, really.** Relay the ledger's question in the user's
+   conversation language: "No suitable image was found within the search time.
+   Would you like to continue searching, use Arabic images, use English images,
+   or use no images?" Then record the real answer:
    `image-search-resolve --action continue_search|use_arabic|use_english|no_images
    --user-confirmed`. Do not sleep to simulate searching and do not fabricate
    elapsed time — the ledger records what actually happened, or fails.

@@ -27,6 +27,7 @@ from . import design as design_module
 from . import math_layout
 from . import output_preferences
 from . import pdf_layouts
+from . import instructions
 from .jobs import file_digest, read_json, register_generated, write_json
 from .styles import (
     css_stack,
@@ -438,8 +439,86 @@ def _css(style, direction, labels):
     """ + pdf_layouts.font_face_css(style) + pdf_layouts.layout_css(style)
 
 
+def _instruction_css(style):
+    page = style["page"]
+    margin = page["margin_mm"]
+    height = page["height_mm"] - margin["top"] - margin["bottom"] - 1.5
+    return f"""
+    body.software-tutorial .cover {{ height:{height:.3f}mm; padding-top:0;
+      justify-content:center; gap:6mm; break-inside:avoid; }}
+    body.software-tutorial .cover h1,
+    body.software-tutorial .cover .meta,
+    body.software-tutorial .cover .rule {{ margin:0; }}
+    .instructional-chapter {{ padding:0; border:0; }}
+    .instruction-page {{ height:{height:.3f}mm; box-sizing:border-box; display:flex;
+      flex-direction:column; break-before:page; break-inside:avoid; gap:4mm; }}
+    .instruction-page + .instruction-page {{ margin-top:0; }}
+    .instruction-page h1 {{ font-size:{min(page['typography']['h1_pt'], 30)}pt;
+      margin:0; padding:0; border:0; line-height:1.15; color:var(--accent); overflow-wrap:anywhere; }}
+    .instruction-context {{ font-size:{page['typography']['small_pt']}pt; color:var(--muted); }}
+    .instruction-body {{ display:flex; gap:7mm; flex:1; min-height:0; }}
+    .instruction-image-pane {{ flex:1.15; min-width:0; min-height:0; display:flex; flex-direction:column; }}
+    .instruction-picture {{ flex:1; min-height:0; }}
+    .instruction-picture svg {{ width:100%; height:100%; display:block; }}
+    .instruction-copy {{ flex:1; min-width:0; min-height:0; line-height:1.25; overflow-wrap:anywhere; }}
+    .instruction-copy p {{ margin:0 0 .7em; }}
+    .instruction-copy ol {{ margin:0 0 .7em; padding-inline-start:1.4em; }}
+    .instruction-copy li {{ margin:0 0 .5em; }}
+    .instruction-result {{ color:var(--accent); font-weight:700; }}
+    .instruction-caption {{ font-size:{min(page['typography']['caption_pt'], 11)}pt;
+      color:var(--muted); margin-top:2mm; line-height:1.2; overflow-wrap:anywhere; }}
+    .instruction-stacked .instruction-body {{ flex-direction:column; }}
+    .instruction-stacked .instruction-image-pane {{ flex:1; }}
+    .instruction-stacked .instruction-copy {{ flex:0 0 auto; }}
+    body.preview .instructional-chapter + .instructional-chapter {{ margin:0; padding:0; border:0; }}
+    """
+
+
+def _instruction_html(root, section, block, direction, labels):
+    from PIL import Image
+
+    instructions.validate(block)
+    asset = authoring.image_asset(root, block["asset_id"], section["id"])
+    path = asset.get("resolved_path") or asset["path"]
+    with Image.open(path) as image:
+        width, height = image.size
+    marks = []
+    for callout in block.get("callouts", []):
+        x, y, w, h = callout["box"]
+        x, y, w, h = x * width, y * height, w * width, h * height
+        radius = max(9, min(width, height) * .022)
+        cx, cy = min(width - radius, x + w), max(radius, y)
+        marks.append(f'<rect x="{x}" y="{y}" width="{w}" height="{h}" fill="none" '
+                     f'stroke="#CD5710" stroke-width="{max(2, width / 500)}"/>'
+                     f'<circle cx="{cx}" cy="{cy}" r="{radius}" fill="#CD5710"/>'
+                     f'<text x="{cx}" y="{cy}" dy=".35em" text-anchor="middle" '
+                     f'font-family="Arial" font-size="{radius * 1.35}" fill="white">{callout["step"]}</text>')
+    short_credit = instructions.recording_label(asset)
+    source = html.escape(short_credit) if short_credit else _asset_source_line(asset)
+    credit = f'<br>{source}' if source else ""
+    steps = "".join(f'<li>{_rich(step)}</li>' for step in block["steps"])
+    layout = instructions.layout(block, width / height)
+    timing = output_preferences.section_time_label(root, section)
+    context = _rich(section["title"]) + (f' <bdi>{html.escape(timing)}</bdi>' if timing else "")
+    if block.get("origin") == "example":
+        context = html.escape(labels["additional_example"]) + " - " + context
+    return (
+        f'<article class="instruction-page instruction-{layout}">'
+        f'<div class="instruction-context">{context}</div><h1>{_rich(block["title"])}</h1>'
+        f'<div class="instruction-body"><div class="instruction-image-pane">'
+        f'<div class="instruction-picture"><svg xmlns="http://www.w3.org/2000/svg" '
+        f'viewBox="0 0 {width} {height}" role="img" aria-label="{html.escape(block["caption"], quote=True)}">'
+        f'<image href="{_image_data_uri(path)}" width="{width}" height="{height}"/>{"".join(marks)}</svg></div>'
+        f'<div class="instruction-caption">{_rich(block["caption"])}{credit}</div></div>'
+        f'<div class="instruction-copy"><p>{_rich(block["text"])}</p><ol>{steps}</ol>'
+        f'<p class="instruction-result">{_rich(block["result"])}</p></div></div></article>'
+    )
+
+
 def _render_block(root, section, block, style, direction, labels):
     kind = block.get("type")
+    if kind == "instruction":
+        return _instruction_html(root, section, block, direction, labels)
     example = block.get("origin") == "example"
     classes = "block" + (" example" if example else "")
     badge = (
@@ -587,8 +666,11 @@ def _sections_html(root, content, style, direction, labels):
             for block in section["blocks"]
         )
         heading = _chapter_heading(section, index, labels, output_preferences.section_time_label(root, section))
-        chapter = pdf_layouts.chapter_html(heading, summary_html + blocks, style["layout"])
-        parts.append(f'<section class="chapter" id="sec-{html.escape(section["id"])}">{chapter}</section>')
+        has_instructions = any(b.get("type") == "instruction" for b in section["blocks"])
+        chapter = (summary_html + blocks if has_instructions else
+                   pdf_layouts.chapter_html(heading, summary_html + blocks, style["layout"]))
+        extra = " instructional-chapter" if has_instructions else ""
+        parts.append(f'<section class="chapter{extra}" id="sec-{html.escape(section["id"])}">{chapter}</section>')
     return "".join(parts)
 
 
@@ -603,7 +685,7 @@ def _chapter_heading(section, index, labels, time_label=""):
 
 def _appendix_html(content, labels):
     uncertainties = content.get("uncertainties") or []
-    omissions = content.get("omissions") or []
+    omissions = [] if instructions.tutorial_mode(content) else content.get("omissions") or []
     if not uncertainties and not omissions:
         return ""
     parts = [f'<section class="appendix"><h1>{html.escape(labels["source_note"])}</h1>']
@@ -665,36 +747,47 @@ def _html_document(root, content, style, page_numbers=None, preview=False):
     body = ""
     if preview:
         preview_sections = _preview_sections(content)
-        body += _cover_html(content, style, labels)
-        body += (
-            f'<div class="preview-banner"><strong>{html.escape(labels["preview"])}</strong> — '
-            f'{html.escape(labels["preview_note"])}</div>'
-        )
+        preview_content = dict(content)
+        if instructions.tutorial_mode(content):
+            preview_content["source_note"] = (str(content.get("source_note") or "") + " " + labels["preview_note"]).strip()
+        body += _cover_html(preview_content, style, labels)
+        if not instructions.tutorial_mode(content):
+            body += (
+                f'<div class="preview-banner"><strong>{html.escape(labels["preview"])}</strong> — '
+                f'{html.escape(labels["preview_note"])}</div>'
+            )
         for index, (section, blocks) in enumerate(preview_sections, start=1):
             heading = _chapter_heading(section, index, labels, output_preferences.section_time_label(root, section))
             block_html = "".join(_render_block(root, section, block, style, direction, labels) for block in blocks)
-            chapter = pdf_layouts.chapter_html(heading, block_html, style["layout"])
-            body += f'<section class="chapter" id="sec-{html.escape(section["id"])}">{chapter}</section>'
+            has_instructions = any(b.get("type") == "instruction" for b in blocks)
+            chapter = block_html if has_instructions else pdf_layouts.chapter_html(heading, block_html, style["layout"])
+            extra = " instructional-chapter" if has_instructions else ""
+            body += f'<section class="chapter{extra}" id="sec-{html.escape(section["id"])}">{chapter}</section>'
     else:
         body = _cover_html(content, style, labels)
         body += _toc_html(content, labels, page_numbers)
         body += _sections_html(root, content, style, direction, labels)
         body += _appendix_html(content, labels)
     page = style["page"]
-    body_class = ' class="preview"' if preview else ""
+    body_classes = (["preview"] if preview else []) + (["software-tutorial"] if instructions.tutorial_mode(content) else [])
+    body_class = f' class="{" ".join(body_classes)}"' if body_classes else ""
     return f"""<!doctype html>
 <html lang="{html.escape(str(content.get('language', 'en')))}" dir="{direction}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{html.escape(str(content.get('title', '')))}</title>
-<style>{_css(style, direction, labels)}</style>
+<style>{_css(style, direction, labels)}{_instruction_css(style)}</style>
 </head>
 <body{body_class}>{body}</body>
 </html>"""
 
 
 def _preview_sections(content):
+    if instructions.tutorial_mode(content):
+        selected = instructions.preview_sections(content)
+        if selected:
+            return [(section, section["blocks"]) for section in selected]
     """Select representative real blocks covering the available block types."""
 
     sections = content["sections"]
@@ -939,6 +1032,15 @@ def _print_pdf(html_text, destination, content, style, footer=True):
             page.set_content(html_text, wait_until="load")
             page.evaluate("document.fonts.ready")
             page.emulate_media(media="print")
+            page_width = page_settings["width_mm"] - margins["left"] - margins["right"]
+            if page.locator(".instruction-page").count():
+                page.add_style_tag(content=f"body {{ width:{page_width}mm; }}")
+            dense = page.evaluate("""() => [...document.querySelectorAll('.instruction-page')].some(unit =>
+                unit.scrollHeight > unit.clientHeight + 2 ||
+                [...unit.querySelectorAll('.instruction-copy')].some(copy => copy.scrollHeight > copy.clientHeight + 2) ||
+                [...unit.querySelectorAll('.instruction-picture')].some(picture => picture.clientHeight < 80))""")
+            if dense:
+                raise ValueError("Split the dense instruction at a meaningful substep; its image and steps must fit one page")
             audit = _audit(page)
             if audit.get("horizontalOverflow"):
                 raise ValueError(
@@ -1041,7 +1143,7 @@ def _read_back(pdf_path, content, style, text_only):
     content_text = str(content.get("title", "")) + " " + " ".join(
         authoring.block_plain_text(block) for _, block in authoring.iter_blocks(content)
     )
-    expected_images = sum(1 for _, block in authoring.iter_blocks(content) if block.get("type") == "image")
+    expected_images = sum(1 for _, block in authoring.iter_blocks(content) if block.get("type") in {"image", "instruction"})
     report = {
         "pages": document.page_count,
         "characters": len(full),

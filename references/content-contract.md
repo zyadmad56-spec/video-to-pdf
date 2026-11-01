@@ -35,17 +35,17 @@ This is for metadata only. Do not use it to hide lecture content.
 ```json
 {
   "schema_version": 1,
-  "title": "Entity و attributes: ملاحظات محاضرة",
-  "subtitle": "شرح كامل مع مصطلحات إنجليزية وأرقام (2026).",
-  "language": "mixed",
-  "direction": "rtl",
+  "title": "Entities and attributes: lecture notes",
+  "subtitle": "A complete explanation with technical terms and numbers (2026).",
+  "language": "en",
+  "direction": "ltr",
   "source_note": "Selected interval: 00:10:00–00:42:00",
   "output_stem": "entity-attributes-notes",
   "sections": [
     {
       "id": "entities",
-      "title": "الكيانات والسمات Entity و attributes",
-      "summary": "ما معنى الكيان، وما الفرق بين الصف والمفتاح الأساسي؟",
+      "title": "Entities and attributes",
+      "summary": "What is an entity, and how do a row and a primary key differ?",
       "blocks": []
     }
   ],
@@ -55,6 +55,13 @@ This is for metadata only. Do not use it to hide lecture content.
 ```
 
 Required: `title`, `language`, `direction` (`rtl`/`ltr`), at least one section. Section IDs must be unique; titles and at least one supported block per section are required.
+
+`document_mode` is optional: `study_notes` preserves legacy output; use
+`software_tutorial` for application lessons with the paired instructional layout.
+In that mode, output pictures must be `instruction` blocks, not standalone images.
+Text-only tutorials can still use paragraph, bullet, table, and equation blocks.
+The full omission ledger remains in `content.json`; only material source
+uncertainties appear in the software tutorial's PDF/PPTX notes.
 
 ### Optional section video interval
 
@@ -86,7 +93,7 @@ preference binding, so make and accept a fresh preview before final rendering.
 
 ```json
 {"type": "paragraph",
- "text": "الكيان Entity شيء له سمات attributes. كل صف row يمثل نسخة واحدة.",
+ "text": "An entity has attributes. Each row represents one instance.",
  "evidence": ["audio-000001", "screen-000012"],
  "origin": "lecture"}
 ```
@@ -97,7 +104,7 @@ preference binding, so make and accept a fresh preview before final rendering.
 
 ```json
 {"type": "bullets", "ordered": false,
- "items": ["المفتاح الأساسي primary key فريد.", "العمود column يمثل سمة attributes."],
+ "items": ["The primary key is unique.", "A column represents an attribute."],
  "evidence": ["audio-000002"]}
 ```
 
@@ -107,9 +114,9 @@ Items may not be empty. Splitting a lecture list across bullets must retain subs
 
 ```json
 {"type": "table",
- "header": ["العنصر", "المعنى", "الوحدة"],
- "rows": [["row", "صف في الجدول", "—"], ["primary key", "معرّف فريد", "1"]],
- "caption": "مصطلحات أساسية في الجدول.",
+ "header": ["Item", "Meaning", "Unit"],
+ "rows": [["row", "A record in the table", "—"], ["primary key", "A unique identifier", "1"]],
+ "caption": "Basic table terminology.",
  "evidence": ["audio-000002"]}
 ```
 
@@ -122,7 +129,7 @@ Rows must be nonempty and rectangular. Header (`header` or `columns`) must match
  "text": "KEY(row_i) ≠ KEY(row_j) for i ≠ j",
  "symbols": "KEY = primary key; i, j = row indices",
  "units": "rows",
- "description": "المفتاح الأساسي فريد لكل صف.",
+ "description": "The primary key is unique for each row.",
  "evidence": ["audio-000002"]}
 ```
 
@@ -189,12 +196,53 @@ Inline formulas inside prose (bullets, cells, captions) must be written as inlin
 {"type": "image",
  "asset_id": "supplied-table",
  "section": "entities",
- "caption": "جدول بثلاثة أعمدة مع تعليم المفتاح الأساسي.",
+ "caption": "A three-column table with the primary key marked.",
  "placement": "auto",
  "evidence": ["screen-000012", "audio-000002"]}
 ```
 
 The asset must be `accepted`, actually inspected, and reviewed **for this exact section**. See `styles-and-images.md`.
+
+### Instruction: screenshot, actions, and result (v0.1)
+
+For a paired software tutorial, author each complete teaching unit explicitly:
+
+```json
+{
+  "type": "instruction",
+  "title": "Choose the columns to expand",
+  "text": "Expand the nested table to bring its selected fields into the query.",
+  "asset_id": "expand-dialog",
+  "caption": "The expansion dialog with the required fields selected.",
+  "steps": ["Open the expand control on the nested table column.",
+            "Select the demonstrated fields and confirm."],
+  "result": "The selected fields appear as columns in the query.",
+  "layout": "side-by-side",
+  "callouts": [{"step": 1, "box": [0.1, 0.1, 0.25, 0.2]}],
+  "evidence": ["screen-000012", "audio-000002"]
+}
+```
+
+Title, text, caption, result, and a nonempty list of step strings are required.
+The image follows the same acceptance, label-language, section-placement, source,
+and byte-binding checks as an image block. Every statement still needs supporting
+evidence; the sample coordinates are illustrative, not coordinates for a real UI.
+
+`layout` is `auto` (default), `side-by-side`, or `stacked`. Auto stacks images
+whose width/height ratio is at least 2.4; otherwise it pairs them horizontally.
+The complete image is fitted without cropping. The author chooses the correct
+crop before registering/reviewing the asset. `callouts` defaults to an empty list;
+each entry has exactly `step` (a one-based step number) and `box` (normalized
+`[left, top, width, height]`, wholly inside the image). The PDF draws vector
+marks; PPTX creates editable shapes and number labels. Use a clean crop with
+these callouts for editable annotations, rather than baking marks into pixels.
+
+One instruction occupies one PDF page / PPTX slide with all its teaching text.
+Content that cannot fit raises an actionable error: split it at a meaningful
+substep and repeat the appropriate screenshot/context in the next instruction.
+The renderers do not silently discard steps or indefinitely shrink the text.
+The preview selects the first two complete instruction units; author a typical
+unit and a dense unit first to test both compositions before full assembly.
 
 The asset record may optionally carry `source_name` (plain text, 1–48 printable characters, no control characters). It is the compact citation label shown in the rendered source line — a source brand name such as JoAcademy is fine even in an Arabic document — while the link still points to the real `source_url`/`source_page`, which are never replaced or removed. The preview binding includes `source_name`, so changing it invalidates an existing accepted preview.
 

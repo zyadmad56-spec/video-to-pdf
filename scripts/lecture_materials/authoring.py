@@ -26,6 +26,7 @@ from pathlib import Path
 from . import image_policy
 from . import math_layout
 from . import output_preferences
+from . import instructions
 from .adaptive import DEFAULT_INTERVAL, plan_refinement, validate_refinement_level
 from .jobs import file_digest, json_digest, load_job, read_json, save_job
 from .timing import sample_times
@@ -33,7 +34,7 @@ from .timing import sample_times
 SCHEMA_VERSION = 1
 
 EVIDENCE_FILES = ("transcript.json", "screen.json", "references.json", "external.json")
-BLOCK_TYPES = ("paragraph", "bullets", "table", "equation", "image")
+BLOCK_TYPES = ("paragraph", "bullets", "table", "equation", "image", "instruction")
 BLOCK_ORIGINS = ("lecture", "explanation", "agent_explanation", "example")
 OMISSION_KINDS = {
     "repetition",
@@ -147,6 +148,10 @@ def block_plain_text(block):
     """Return the complete user-visible text of a block for inventories."""
 
     kind = block.get("type")
+    if kind == "instruction":
+        return "\n".join(_visible_text(value) for value in
+                         [block.get("title", ""), block.get("text", ""),
+                          *block.get("steps", []), block.get("result", ""), block.get("caption", "")])
     if kind in {"paragraph", "equation"}:
         parts = [_visible_text(block.get("text", ""))]
         for key in ("symbols", "labels", "units", "description", "caption"):
@@ -530,7 +535,9 @@ def validate_block(root, section, block, evidence=None):
     if kind not in BLOCK_TYPES:
         raise ValueError(f"Unsupported content block type: {kind!r}")
 
-    if kind == "image":
+    if kind in {"image", "instruction"}:
+        if kind == "instruction":
+            instructions.validate(block)
         if image_mode(root) == "text":
             raise ValueError("Text-only output cannot contain inserted image objects")
         caption = block.get("caption")
@@ -654,6 +661,7 @@ def validate_content(root, content):
 
     if not isinstance(content, dict):
         raise ValueError("content.json must contain an object")
+    is_tutorial = instructions.tutorial_mode(content)
     if content.get("schema_version", SCHEMA_VERSION) != SCHEMA_VERSION:
         raise ValueError("Unsupported content schema version")
     if not _nonempty(content.get("title")):
@@ -710,6 +718,8 @@ def validate_content(root, content):
         if not isinstance(blocks, list) or not blocks:
             raise ValueError(f"Section {identifier!r} needs at least one supported block")
         for block in blocks:
+            if is_tutorial and isinstance(block, dict) and block.get("type") == "image":
+                raise ValueError("Software tutorial pictures must use an instruction block with their steps")
             validate_block(root, section, block, evidence=set(evidence))
             citations = block.get("evidence") or []
             unknown = sorted(set(citations) - set(evidence))
@@ -757,7 +767,7 @@ def validate_content(root, content):
     if uncertainties:
         warnings.append("Unresolved source notes are surfaced; confirm their wording and locations")
     mode = image_mode(root)
-    if blocks_by_type.get("image") and mode != "text" and declared_image_language is None:
+    if (blocks_by_type.get("image") or blocks_by_type.get("instruction")) and mode != "text" and declared_image_language is None:
         warnings.append(
             "Images are used without an image_language preference; only legacy jobs may omit it, "
             "and their labels were not validated against a requested label language."
@@ -773,7 +783,7 @@ def validate_content(root, content):
         "text-only policy contains no image blocks",
         "example blocks require the job-level permission",
     ]
-    if blocks_by_type.get("image") and declared_image_language is not None:
+    if (blocks_by_type.get("image") or blocks_by_type.get("instruction")) and declared_image_language is not None:
         checks_proven.append(
             "used image labels are explicitly inspected and match the requested image language"
         )
@@ -1417,7 +1427,7 @@ def _used_assets(root, content):
     used = []
     seen = set()
     for section, block in iter_blocks(content):
-        if block.get("type") != "image":
+        if block.get("type") not in {"image", "instruction"}:
             continue
         asset_id = block.get("asset_id")
         key = (asset_id, section.get("id"))

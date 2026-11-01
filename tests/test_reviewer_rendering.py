@@ -29,7 +29,8 @@ class ReviewerRenderingCase(unittest.TestCase):
             stale = target / "Slide1.PNG"
             Image.new("RGB", (20, 20), "blue").save(stale)
             # Dependency import and executable discovery are external boundaries.
-            with patch.dict(sys.modules, {"win32com.client": None}), patch("shutil.which", return_value=None):
+            with patch.dict(sys.modules, {"win32com.client": None}), \
+                    patch("lecture_materials.design._find_soffice", return_value=None):
                 report = render_pptx.export_rendered_slides(original, target, limit=1)
             self.assertFalse(report["available"])
             self.assertFalse(stale.exists(), "An unavailable current render must not expose an old preview as current")

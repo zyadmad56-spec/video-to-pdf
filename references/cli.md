@@ -227,13 +227,14 @@ missing choice (VALUE parses as JSON when valid, else stays a string). Policies
 stay: text-only jobs are not asked image-language questions; already-recorded
 answers are kept, not re-asked.
 
-Output:
+Output (localized question text and option labels are translated into English
+in this example; relay them in the user's conversation language):
 
 ```json
 {
   "ok": true,
   "missing_preferences": ["image_language"],
-  "image_intake": {"available": true, "recorded": null, "questions": [{"id": "image_language", "question": "المستند يجمع بين العربية والإنجليزية. ما لغة العناوين داخل الصور: العربية، الإنجليزية، أم العربية والإنجليزية معًا؟", "options": [{"value": "ar", "label": "العربية"}, {"value": "en", "label": "الإنجليزية"}, {"value": "mixed", "label": "العربية والإنجليزية معًا"}]}]},
+  "image_intake": {"available": true, "recorded": null, "questions": [{"id": "image_language", "question": "The document combines Arabic and English. Should image labels be Arabic, English, or bilingual?", "options": [{"value": "ar", "label": "Arabic"}, {"value": "en", "label": "English"}, {"value": "mixed", "label": "Arabic and English"}]}]},
   "answered": ["image_language"],
   "recorded": {"image_language": "mixed"},
   "asset_language": null,
@@ -264,7 +265,7 @@ unreadable asset for requested en labels"        (asset_language_invalid)
 lecture.py image-search-start --root "<job>" \
   --request request.json
 lecture.py image-search-start --root "<job>" --request-id "sec-power-1" \
-  --section "efficiency" --query "لوحة شرح القدرة والكفاءة" [--budget 600]
+  --section "efficiency" --query "power and efficiency teaching diagram" [--budget 600]
 ```
 
 Creates or explicitly resumes one durable search request for one section.
@@ -284,7 +285,7 @@ backend's durable summary (every following command returns the same shape):
 {
   "request_id": "sec-power-1",
   "section_id": "efficiency",
-  "query": "لوحة شرح القدرة والكفاءة",
+  "query": "power and efficiency teaching diagram",
   "language": "mixed",
   "status": "searching",
   "search_interval_open": true,
@@ -330,7 +331,7 @@ lecture.py image-search-attempt --root "<job>" --request-id "sec-power-1" \
   --query "power efficiency diagram arabic" --outcome none --elapsed-seconds 480 \
   --note "results were diagrams with English labels only"
 lecture.py image-search-attempt --root "<job>" --request-id "sec-power-1" \
-  --query "استخدام الطاقة في masks" --outcome found --candidate web-001 --candidate web-002
+  --query "energy use in masks" --outcome found --candidate web-001 --candidate web-002
 ```
 
 Records one real query/outcome made with host tools and accrues the active
@@ -363,18 +364,19 @@ text-only live request stops the clock (`search_interval_open: false`)
 without erasing elapsed time; reconciliation must resolve that state
 explicitly. Unknown ID returns exit `2` (`search_request_not_found`). Exceeding the
 recorded budget moves `status` to `awaiting_decision` with `question` and
-`choices`:
+`choices` (display strings translated into English here; the backend's
+`language` field describes its original localized text):
 
 ```json
 "question": {
   "language": "ar",
   "reason": "search_budget_exhausted",
-  "text": "لم يُعثر على صورة مناسبة خلال مدة البحث. هل تريد متابعة البحث، أم استخدام صور بالعربية، أم استخدام صور بالإنجليزية، أم عدم استخدام صور؟",
+  "text": "No suitable image was found within the search time. Would you like to continue searching, use Arabic images, use English images, or use no images?",
   "choices": [
-    {"value": "continue_search", "label": "متابعة البحث"},
-    {"value": "use_arabic", "label": "استخدام صور عربية"},
-    {"value": "use_english", "label": "استخدام صور إنجليزية"},
-    {"value": "no_images", "label": "عدم استخدام الصور"}
+    {"value": "continue_search", "label": "Continue searching"},
+    {"value": "use_arabic", "label": "Use Arabic images"},
+    {"value": "use_english", "label": "Use English images"},
+    {"value": "no_images", "label": "Use no images"}
   ]
 }
 ```

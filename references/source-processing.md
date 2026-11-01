@@ -133,9 +133,9 @@ documented prepare reset.
   "kind": "spoken",
   "start": 61.0,
   "end": 64.2,
-  "text": "شرح Primary key",
-  "raw_text": "شرح Primary key",
-  "source_language": "ar",
+  "text": "Primary key explanation",
+  "raw_text": "Primary key explanation",
+  "source_language": "en",
   "provenance": {"provider": "captions", "track": "manual", "cue_index": 2},
   "provider": "captions",
   "review_status": "unreviewed"
@@ -163,6 +163,12 @@ documented prepare reset.
   means unresolved. Do not infer whole-lecture language from one short sample.
 
 ### ASR checkpoints
+
+Transcription and explicit speech reset share an OS-managed lock at
+`work/speech.lock`. A second writer or reset fails while the first process owns
+the lock, before model loading or checkpoint changes. Process exit releases the
+lock automatically; the lock file is retained to avoid an unlink/reopen race.
+Retry after the owner has stopped; matching completed chunks remain resumable.
 
 `work/audio/asr/chunk-NNNN.json`:
 
