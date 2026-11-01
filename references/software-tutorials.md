@@ -1,26 +1,48 @@
-# Software tutorials: screenshots and practical explanation
+# v0.1 - Software tutorials: screenshots and practical explanation
 
-Apply this branch to videos teaching an application, including Power BI, Excel,
-and other desktop or browser software. It applies to local and YouTube videos.
+Feature title: Instructional videos for "Office" software and other programs,
+accompanied by detailed explanations in PDF files.
 
-## Ask once about screenshot source
+Apply this branch to local or YouTube videos teaching Office, Power BI, Excel,
+RStudio, GitHub, or another desktop/browser application. Keep PDF/PPTX, language,
+examples, design, image policy, and timestamp choices from the main intake.
+Theoretical lessons use diagrams, equations, and layouts appropriate to their
+subject; application click targets are specific to this branch.
 
-Keep the user's explicit choice if already supplied. Otherwise ask before
-collecting output screenshots:
+## Ask only for missing choices
+
+Read the request and existing preferences first. A reference or explicit request
+may already settle these choices. Ask the unanswered questions together, before
+long ingest or document assembly, in the user's language. Recommendations are
+options, not submitted answers.
+
+1. **Detail level:** "تحب نحافظ على كل فكرة وخطوة ومثال تعليمي مهم بصياغة مركزة،
+   ونشيل التكرار والكلام الجانبي، ولا تحب نقل قريب من كلام المحاضر حتى لو أطول؟"
+   Recommend **all important teaching, written concisely**. The alternative is
+   **near-verbatim teaching**. Concise means removing repetition, not dropping
+   distinct explanations, useful instructional questions, examples, or results.
+2. **Instructional layout:** "تحب صورة واضحة معلّم عليها والخطوات المرتبطة بيها
+   في نفس الصفحة، ولا عندك توزيع أو مرجع تاني تحب نمشي عليه؟"
+   Recommend **annotated screenshot and its steps together**. Keep a supplied
+   layout/reference instead of asking again. Treat a request to match a design
+   as a composition requirement, not just a palette/font choice.
+3. **Screenshot source:** ask this only when pictures are requested and the
+   source choice remains unanswered:
 
 > تحب ناخد صور الشرح من الفيديو نفسه، ولا أفتح البرنامج وأصوّر نفس الخطوات؟
 > أنصح بصور الفيديو لأنها بتطابق شرح المحاضر والبيانات اللي بيستخدمها.
 
 Offer two choices: **من الفيديو (أنصح به)** and **من داخل البرنامج**. A
-recommendation is not an answer; wait for the screenshot-source choice while
-continuing independent source review. An explicit text-only request skips this
-question. Retain other output, language, design and timestamp choices; this is
-one additional intake question, not a reason to repeat the entire interview.
+text-only request skips the layout's screenshot choice and this source question;
+keep the agreed detail level and use clear text instructions. Wait for missing
+answers while continuing independent, inexpensive inspection. Preserve choices
+already provided; the skill owner's branch-design questions are not extra
+questions to repeat to every end user.
 
-Record the answer in the job's intake notes. This is a host workflow, not an
-automatic application-launch or screenshot-source CLI feature. Use the existing
+Record these answers in the job's intake notes. They are host workflow choices,
+not new CLI flags or automatic application-control features. Use the existing
 source-image permission for lecture captures and preserve per-image provenance;
-see `styles-and-images.md`. Do not invent a new CLI flag or asset origin.
+see `styles-and-images.md`.
 Recording or application screenshots do not require a web-image search. Search
 for additional web images only when the user requested them.
 
@@ -44,12 +66,25 @@ for additional web images only when the user requested them.
   differences). Label any material reproduction difference in the explanation.
   Never present a generic screenshot as the lecturer's actual result.
 
-## Explain and verify
+## Compose an instructional page
 
-Use the approved practical approach: ordered steps stating what to select,
-which command or value to enter, and the expected visible result. Place a clear
-screenshot beside the relevant step, with numbered boxes or arrows identifying
-click targets. Keep PowerPoint text and callouts editable when PPTX is requested.
+For the paired layout, compose each teaching unit before export: a focused title,
+a short explanation, the relevant screenshot, ordered actions, and the expected
+visible result. Place the screenshot beside its own steps, or above them when a
+wide dialog needs more room, on the same page/slide. Numbered boxes or arrows
+must identify the control, cell, code line, command, or result those steps name.
+Keep PowerPoint text and callouts editable when PPTX is requested.
+
+Use the smallest set of screenshots that demonstrates the distinct actions and
+results. Add a screenshot when it teaches something the existing image cannot
+show. Source-review frames are evidence, not a quota of pictures to insert.
+Crop irrelevant chrome while retaining labels, values, and navigation context.
+
+Split a dense unit at a meaningful substep and keep each resulting image with
+its explanation. Avoid sentence-fragment continuation pages, image-only pages
+whose instructions are elsewhere, and topic dividers that add no teaching.
+Page count follows readable, complete teaching; a fixed count is not a reason
+to remove material or shrink labels beyond legibility.
 
 Omit unrelated chatter from the authored explanation and retain relevant
 instructional questions. Preserve the original recording and raw evidence.
@@ -57,5 +92,33 @@ Distinguish observed errors, unfinished demonstrations and added corrections.
 Keep each user's chosen language, format and timestamp visibility; this branch
 does not make English, both formats or hidden times universal defaults.
 
+## Preview and efficient review
+
+Before assembling the full document, show a small real-content pilot containing
+a typical unit and a dense dialog or multi-step unit in each requested format.
+Inspect and have the user judge both the teaching and image/step pairing at
+reading size. A cover or a colour match alone does not demonstrate the layout.
+
+Check the authoring route's actual pairing and notes-export support before the
+pilot. A style entry named `image-with-text` is not proof of a working compositor.
+The current sequential renderers can split related blocks and automatically add
+source notes. If the selected route cannot meet the agreed layout or keep lengthy
+internal audit tables out of the study file, disclose the limitation before full
+assembly and establish a supported route that preserves evidence and approval
+gates. Markdown instructions alone do not implement renderer capabilities.
+
+Keep detailed evidence IDs, omission ledgers, noise/repetition lists, and resource
+logs in working records. The study file should contain the teaching and only
+source uncertainties that materially affect understanding. Do not present an
+internal omission ledger as course data or a required teaching section.
+
 Open every final page/slide and check screenshot legibility, target positions,
 step accuracy, and text clipping. A script exit alone is not visual review.
+After a correction, inspect the changed pages and any pages affected by reflow;
+reuse review only for demonstrably unchanged rendered pages. Keep complete
+source review and distinguish it from selecting output illustrations.
+
+Reuse the existing transcript, frame observations, and valid matching checkpoints.
+Before replacing an ASR process or resetting its state, confirm the previous
+process has stopped. Delegate bounded, distinct review tasks when needed and
+reuse their recorded findings rather than assigning duplicate full reviews.

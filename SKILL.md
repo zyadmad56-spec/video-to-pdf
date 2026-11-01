@@ -43,9 +43,11 @@ missing, in ordinary language, **before** starting a long ingest:
 5. **Images:** text only, relevant web images, user-supplied images, or an
    explicitly requested combination. For software tutorials (Power BI, Excel,
    or another application), follow
-   [software tutorial intake](references/software-tutorials.md) to ask about
-   recording captures versus opening the application, recommending recording
-   captures. Keep any answer already supplied. Text-only output contains no picture
+   [software tutorial intake](references/software-tutorials.md) before long
+   ingest or authoring. Keep existing answers; ask only about missing detail
+   level, screenshot source, and instructional page layout. Apply this branch
+   to Office, Power BI, Excel, RStudio, GitHub, and other application tutorials;
+   choose suitable diagrams or equations for theoretical lessons. Text-only output contains no picture
    objects, but the lecture screen must still be reviewed. Record each choice as
    `image_mode`; it is only the source policy (`mixed` means web + user
    sources). When the output language mixes two languages and images are

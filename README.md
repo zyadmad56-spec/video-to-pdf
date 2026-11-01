@@ -46,7 +46,7 @@ The agent keeps choices you have already supplied and asks for the missing ones:
 | Design | A built-in style, the bundled Blueframe adaptation, or your own reference. |
 | Video times | Show section intervals such as `17:18-18:18`, or hide them in the study files. |
 
-For an application tutorial, there is one more question: take screenshots from the recording, or open the application and reproduce the demonstrated steps? The agent recommends the recording because it matches the lecturer's interface and data. It keeps an answer you have already given.
+For Office, Power BI, Excel, RStudio, GitHub, and other application tutorials, the agent asks only for missing choices about detail level, page layout, and screenshot source. It recommends preserving all important teaching in concise wording, placing annotated screenshots with their own steps, and taking screenshots from the recording. A supplied answer or reference is kept. Text-only requests skip screenshot questions. See the [software tutorial branch](references/software-tutorials.md).
 
 When a necessary control is unreadable, the agent checks nearby frames and crops before proposing an application capture. If you have already allowed that fallback, it reproduces only the unclear part. Application captures require access to the program and the data needed for that step. Any important difference from the recording is explained.
 
@@ -198,5 +198,23 @@ Renderer tests need an available Chromium route. PowerPoint reference comparison
 - The bundled CLI does not control Excel, Power BI, or other application interfaces. Reproducing a step needs suitable tools in the host environment.
 - Structured equation layout uses MathML in PDF. The PPTX path rejects those structured math blocks explicitly; it needs an appropriate supported representation before export.
 - Design extraction supports selected layout and font properties. Missing fonts and complex native slide features can change the output.
+
+### Local version checkpoints
+
+`the-firest-vergen` marks the original version before the `v0.1` instructional
+video guidance. The feature branch is retained and merged into `main` with a
+merge commit, so its changes remain identifiable. This increment updates agent
+instructions and intake; it does not add a new PDF/PPTX compositor.
+
+To inspect the original version while keeping both branches:
+
+```bash
+git switch --detach the-firest-vergen
+git switch main
+```
+
+To remove the feature from `main` while preserving history, identify its merge
+with `git log --oneline --merges` and run `git revert -m 1 <merge-commit>` from a
+clean `main` checkout. Keep the baseline tag and `v0.1` branch for later comparison.
 
 The code and original instructions use the [MIT license](LICENSE). The bundled course PDF retains its original authorship and is outside that license; see [NOTICE](NOTICE).
